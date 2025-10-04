@@ -25,7 +25,38 @@
   background: #6a6a6a;
 }
 
+/* Hide scrollbar for horizontal scroll but keep functionality */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #6a6a6a;
+}
+
+/* Firefox scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a #1a1a1a;
+}
+
 /* Text truncation */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -59,40 +90,53 @@
   transition: all 0.3s ease-in-out;
 }
 
-/* Channel card hover effects */
-.channel-card {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+.transition-colors {
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
-.channel-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+/* Video card hover effects */
+.hover\:scale-105:hover {
+  transform: scale(1.05);
 }
 
-/* Grid layout adjustments */
-@media (max-width: 1024px) {
-  .grid-cols-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
-@media (max-width: 768px) {
-  .grid-cols-3,
-  .grid-cols-2 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
+/* Better gradient overlays */
+.bg-gradient-to-t {
+  background-image: linear-gradient(to top, var(--tw-gradient-stops));
 }
 
-/* Selected channel animation */
-@keyframes pulse-border {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(250, 204, 21, 0);
-  }
+.from-black\/90 {
+  --tw-gradient-from: rgba(0, 0, 0, 0.9);
+  --tw-gradient-to: rgba(0, 0, 0, 0);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
-.border-yellow-400 {
-  animation: pulse-border 2s infinite;
+.to-transparent {
+  --tw-gradient-to: transparent;
+}
+
+/* Ring for selected video */
+.ring-4 {
+  box-shadow: 0 0 0 4px currentColor;
+}
+
+.ring-yellow-400 {
+  --tw-ring-color: rgb(250, 204, 21);
+}
+
+/* Fullscreen video player */
+:fullscreen {
+  background-color: black;
+}
+
+:-webkit-full-screen {
+  background-color: black;
+}
+
+:-moz-full-screen {
+  background-color: black;
 }

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import YouTube from 'react-youtube';
 import './App.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -7,11 +8,13 @@ const API = `${BACKEND_URL}/api`;
 
 function App() {
   const [channels, setChannels] = useState([]);
-  const [selectedChannel, setSelectedChannel] = useState(null);
   const [channelVideos, setChannelVideos] = useState({});
   const [channelStocks, setChannelStocks] = useState({});
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const [currentChannel, setCurrentChannel] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('liveTV'); // 'liveTV' or 'onDemand'
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     initializeApp();
@@ -28,13 +31,13 @@ function App() {
       const channelsRes = await axios.get(`${API}/channels`);
       setChannels(channelsRes.data);
 
-      // Fetch videos and stock data for first 12 channels
-      const firstChannels = channelsRes.data.slice(0, 12);
-      await Promise.all(firstChannels.map(channel => loadChannelData(channel.ticker)));
+      // Load data for all channels
+      await Promise.all(channelsRes.data.map(channel => loadChannelData(channel.ticker)));
 
-      // Select first channel
+      // Auto-play first video of first channel
       if (channelsRes.data.length > 0) {
-        setSelectedChannel(channelsRes.data[0]);
+        const firstChannel = channelsRes.data[0];
+        setCurrentChannel(firstChannel);
       }
 
       setLoading(false);
@@ -50,8 +53,13 @@ function App() {
       const videosRes = await axios.get(`${API}/channels/${ticker}/videos`);
       setChannelVideos(prev => ({
         ...prev,
-        [ticker]: videosRes.data.slice(0, 5)
+        [ticker]: videosRes.data
       }));
+
+      // Set first video as current if none is set
+      if (!currentVideo && videosRes.data.length > 0) {
+        setCurrentVideo(videosRes.data[0]);
+      }
 
       // Fetch stock data
       const stockRes = await axios.get(`${API}/stock/${ticker}`);
@@ -64,13 +72,26 @@ function App() {
     }
   };
 
-  const handleChannelClick = async (channel) => {
-    setSelectedChannel(channel);
-    
-    // Load data if not already loaded
-    if (!channelVideos[channel.ticker]) {
-      await loadChannelData(channel.ticker);
+  const handleVideoClick = (video, channel) => {
+    setCurrentVideo(video);
+    setCurrentChannel(channel);
+  };
+
+  const handleFullscreen = () => {
+    if (!isFullscreen) {
+      if (playerRef.current?.requestFullscreen) {
+        playerRef.current.requestFullscreen();
+      } else if (playerRef.current?.webkitRequestFullscreen) {
+        playerRef.current.webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
     }
+    setIsFullscreen(!isFullscreen);
   };
 
   const getTrustTierColor = (tier) => {
@@ -81,6 +102,20 @@ function App() {
       'Community': 'bg-gray-600',
     };
     return colors[tier] || 'bg-gray-600';
+  };
+
+  const scrollLeft = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.scrollBy({ left: 300, behavior: 'smooth' });
+    }
   };
 
   if (loading) {
@@ -95,200 +130,208 @@ function App() {
     );
   }
 
-  const displayChannels = channels.slice(0, 12);
+  const opts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 1,
+      controls: 1,
+      modestbranding: 1,
+      rel: 0,
+    },
+  };
+
+  const stockData = currentChannel ? channelStocks[currentChannel.ticker] : null;
 
   return (
     <div className="App h-screen w-screen overflow-hidden bg-black flex flex-col" data-testid="milton-tv-app">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-black z-50">
         <div className="flex items-center gap-8">
-          <h1 className="text-3xl font-bold text-white" data-testid="app-title">milton<span className="text-yellow-400">TV</span></h1>
-          <div className="flex gap-6">
-            <button
-              onClick={() => setView('liveTV')}
-              className={`text-lg font-semibold transition-colors ${
-                view === 'liveTV' ? 'text-yellow-400 border-b-2 border-yellow-400' : 'text-gray-400 hover:text-white'
-              }`}
-              data-testid="live-tv-btn"
-            >
-              Live TV
-            </button>
-            <button
-              onClick={() => setView('onDemand')}
-              className={`text-lg font-semibold transition-colors ${
-                view === 'onDemand' ? 'text-yellow-400 border-b-2 border-yellow-400' : 'text-gray-400 hover:text-white'
-              }`}
-              data-testid="on-demand-btn"
-            >
-              On Demand
-            </button>
-          </div>
+          <h1 className="text-3xl font-bold text-white" data-testid="app-title">
+            milton<span className="text-yellow-400">TV</span>
+          </h1>
+          {currentChannel && (
+            <div className="flex items-center gap-3">
+              <span className="text-gray-400">|</span>
+              <span className="text-yellow-400 font-bold text-lg">${currentChannel.ticker}</span>
+              <span className="text-white">{currentChannel.companyName}</span>
+              {stockData && (
+                <div className="flex items-center gap-2 ml-4">
+                  <span className="text-white font-bold">${stockData.currentPrice.toFixed(2)}</span>
+                  <span className={`text-sm font-semibold ${
+                    stockData.change >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {stockData.change >= 0 ? '+' : ''}{stockData.percentChange.toFixed(2)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+        <button
+          onClick={handleFullscreen}
+          className="px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition-colors flex items-center gap-2"
+          data-testid="fullscreen-btn"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          Fullscreen
+        </button>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Channel List */}
-        <div className="w-64 bg-gray-900 border-r border-gray-800 overflow-y-auto scrollbar-thin" data-testid="channel-sidebar">
-          <div className="p-4">
-            <h2 className="text-yellow-400 text-sm font-bold mb-4 flex items-center gap-2">
-              <span className="text-2xl">📊</span>
-              <span>Stock Channels</span>
-            </h2>
-            <div className="space-y-2">
-              {displayChannels.map((channel) => (
-                <button
-                  key={channel.id}
-                  onClick={() => handleChannelClick(channel)}
-                  className={`w-full text-left p-3 rounded-lg transition-all ${
-                    selectedChannel?.ticker === channel.ticker
-                      ? 'bg-yellow-400 text-black'
-                      : 'bg-gray-800 text-white hover:bg-gray-700'
-                  }`}
-                  data-testid={`sidebar-channel-${channel.ticker}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono opacity-60">CH {String(channel.channelNumber).padStart(2, '0')}</span>
-                    <span className="font-bold">${channel.ticker}</span>
+      {/* Video Player */}
+      <div 
+        ref={playerRef}
+        className="relative bg-black" 
+        style={{ height: '60vh' }}
+        data-testid="video-player-container"
+      >
+        {currentVideo ? (
+          <>
+            <YouTube
+              videoId={currentVideo.videoId}
+              opts={opts}
+              className="w-full h-full"
+              iframeClassName="w-full h-full"
+            />
+            
+            {/* Video Info Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
+                      getTrustTierColor(currentVideo.trustTier)
+                    }`}>
+                      {currentVideo.trustTier}
+                    </span>
                   </div>
-                  <div className="text-xs mt-1 truncate opacity-80">
-                    {channel.companyName}
-                  </div>
-                </button>
-              ))}
+                  <h2 className="text-white text-2xl font-bold mb-2">{currentVideo.title}</h2>
+                  <p className="text-gray-300 text-sm">{currentVideo.source} • {currentVideo.channelTitle}</p>
+                </div>
+              </div>
             </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-white text-2xl">Select a video to start watching</div>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Main Grid Area */}
-        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin" data-testid="channel-grid">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-w-7xl">
-            {displayChannels.map((channel) => {
-              const isSelected = selectedChannel?.ticker === channel.ticker;
-              const videos = channelVideos[channel.ticker] || [];
-              const currentVideo = videos[0];
-              const stockData = channelStocks[channel.ticker];
+      {/* Channel Guide - Horizontal Scrolling */}
+      <div className="flex-1 overflow-y-auto bg-black" data-testid="channel-guide">
+        <div className="p-6">
+          <h2 className="text-white text-xl font-bold mb-4">Channel Guide</h2>
+          
+          {/* Each Channel as a Row */}
+          {channels.map((channel) => {
+            const videos = channelVideos[channel.ticker] || [];
+            const stockData = channelStocks[channel.ticker];
+            const containerId = `channel-${channel.ticker}`;
 
-              return (
-                <div
-                  key={channel.id}
-                  onClick={() => handleChannelClick(channel)}
-                  className={`relative rounded-lg overflow-hidden cursor-pointer transition-all ${
-                    isSelected
-                      ? 'border-4 border-yellow-400 shadow-2xl shadow-yellow-400/50 scale-105 col-span-1 lg:col-span-2 xl:col-span-2'
-                      : 'border-2 border-gray-700 hover:border-gray-600'
-                  }`}
-                  data-testid={`channel-card-${channel.ticker}`}
-                >
-                  {/* Channel Thumbnail */}
-                  {currentVideo ? (
-                    <div className={`relative ${isSelected ? 'h-80' : 'h-48'}`}>
-                      <img
-                        src={currentVideo.thumbnail}
-                        alt={currentVideo.title}
-                        className="w-full h-full object-cover"
-                      />
-                      {/* Channel Logo Overlay */}
-                      <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full">
-                        <span className="text-yellow-400 font-bold">${channel.ticker}</span>
-                      </div>
-                      {/* Stock Price Overlay */}
-                      {stockData && (
-                        <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-sm px-3 py-2 rounded-lg">
-                          <div className="text-white text-sm font-bold">${stockData.currentPrice.toFixed(2)}</div>
-                          <div className={`text-xs font-semibold ${
-                            stockData.change >= 0 ? 'text-green-400' : 'text-red-400'
-                          }`}>
-                            {stockData.change >= 0 ? '+' : ''}{stockData.percentChange.toFixed(2)}%
-                          </div>
-                        </div>
-                      )}
+            return (
+              <div 
+                key={channel.id} 
+                className="mb-6 border-b border-gray-800 pb-6"
+                data-testid={`channel-row-${channel.ticker}`}
+              >
+                {/* Channel Name on Left */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-48 flex-shrink-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-gray-500 font-mono">CH. {String(channel.channelNumber).padStart(3, '0')}</span>
+                      <span className="text-yellow-400 font-bold text-lg">${channel.ticker}</span>
                     </div>
-                  ) : (
-                    <div className={`bg-gray-800 ${isSelected ? 'h-80' : 'h-48'} flex items-center justify-center`}>
-                      <div className="text-gray-600 text-4xl font-bold">${channel.ticker}</div>
-                    </div>
-                  )}
-
-                  {/* Channel Info */}
-                  <div className={`bg-gray-900 p-4 ${isSelected ? 'p-6' : ''}`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className={`font-bold text-white ${
-                        isSelected ? 'text-2xl' : 'text-lg'
-                      }`}>
-                        {channel.companyName}
-                      </h3>
-                      {currentVideo && (
-                        <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${
-                          getTrustTierColor(currentVideo.trustTier)
+                    <h3 className="text-white font-semibold text-sm">{channel.companyName}</h3>
+                    {stockData && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-white text-xs font-bold">${stockData.currentPrice.toFixed(2)}</span>
+                        <span className={`text-xs font-semibold ${
+                          stockData.change >= 0 ? 'text-green-400' : 'text-red-400'
                         }`}>
-                          {currentVideo.trustTier}
+                          {stockData.change >= 0 ? '+' : ''}{stockData.percentChange.toFixed(2)}%
                         </span>
-                      )}
-                    </div>
-
-                    {currentVideo && (
-                      <div>
-                        <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
-                          <span className="text-yellow-400 font-mono">CH. {String(channel.channelNumber).padStart(3, '0')}</span>
-                          <span>•</span>
-                          <span>Now Playing</span>
-                        </div>
-                        <h4 className={`font-semibold text-white mb-2 ${
-                          isSelected ? 'text-lg' : 'text-sm line-clamp-2'
-                        }`}>
-                          {currentVideo.title}
-                        </h4>
-                        {isSelected && (
-                          <div>
-                            <p className="text-gray-400 text-sm mb-3 line-clamp-3">
-                              {currentVideo.description}
-                            </p>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                              <span>{currentVideo.channelTitle}</span>
-                              <span>•</span>
-                              <span>{currentVideo.source}</span>
-                            </div>
-                            {/* Upcoming Videos */}
-                            {videos.length > 1 && (
-                              <div className="mt-4 pt-4 border-t border-gray-800">
-                                <p className="text-xs text-gray-500 mb-2">Up Next:</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                  {videos.slice(1, 5).map((video, idx) => (
-                                    <div key={video.id} className="flex gap-2 bg-gray-800 p-2 rounded">
-                                      <img
-                                        src={video.thumbnail}
-                                        alt={video.title}
-                                        className="w-16 h-12 object-cover rounded"
-                                      />
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-white font-medium line-clamp-2">
-                                          {video.title}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
 
-                  {/* Arrow indicator for selected */}
-                  {isSelected && (
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  {/* Horizontal Scroll Controls */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => scrollLeft(containerId)}
+                      className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                      aria-label="Scroll left"
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
-                    </div>
+                    </button>
+                    <button
+                      onClick={() => scrollRight(containerId)}
+                      className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                      aria-label="Scroll right"
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Horizontal Scrolling Videos */}
+                <div 
+                  id={containerId}
+                  className="flex gap-4 overflow-x-auto scrollbar-thin pb-2"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
+                  {videos.length > 0 ? (
+                    videos.map((video) => (
+                      <div
+                        key={video.id}
+                        onClick={() => handleVideoClick(video, channel)}
+                        className={`flex-shrink-0 w-64 rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-105 ${
+                          currentVideo?.videoId === video.videoId
+                            ? 'ring-4 ring-yellow-400'
+                            : 'border-2 border-gray-700 hover:border-gray-600'
+                        }`}
+                        data-testid={`video-card-${video.videoId}`}
+                      >
+                        {/* Video Thumbnail */}
+                        <div className="relative h-36">
+                          <img
+                            src={video.thumbnail}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Trust Tier Badge */}
+                          <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-semibold text-white ${
+                            getTrustTierColor(video.trustTier)
+                          }`}>
+                            {video.trustTier.split(' ')[0]}
+                          </div>
+                        </div>
+                        
+                        {/* Video Info */}
+                        <div className="bg-gray-900 p-3">
+                          <h4 className="text-white text-sm font-semibold line-clamp-2 mb-1">
+                            {video.title}
+                          </h4>
+                          <p className="text-gray-400 text-xs line-clamp-1">
+                            {video.channelTitle}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-gray-500 text-sm py-4">Loading videos...</div>
                   )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
