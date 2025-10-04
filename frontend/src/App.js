@@ -137,7 +137,13 @@ function App() {
       autoplay: 1,
       controls: 1,
       modestbranding: 1,
-      rel: 0,
+      rel: 0, // Don't show related videos from other channels
+      fs: 1, // Allow fullscreen
+      iv_load_policy: 3, // Hide video annotations
+      showinfo: 0, // Don't show video title and uploader before start
+      disablekb: 0, // Enable keyboard controls
+      enablejsapi: 1, // Enable JavaScript API
+      origin: window.location.origin, // Set origin for security
     },
   };
 
