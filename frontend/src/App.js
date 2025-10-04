@@ -177,6 +177,8 @@ function App() {
       disablekb: 0, // Enable keyboard controls
       enablejsapi: 1, // Enable JavaScript API
       origin: window.location.origin, // Set origin for security
+      playsinline: 1, // Play inline on mobile
+      widget_referrer: window.location.origin,
     },
   };
 
