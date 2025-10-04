@@ -94,6 +94,39 @@ function App() {
     setIsFullscreen(!isFullscreen);
   };
 
+  const handlePlayerReady = (event) => {
+    // Hide end screen and suggested videos
+    const player = event.target;
+    const iframe = player.getIframe();
+    if (iframe) {
+      // Add CSS to hide overlays
+      const style = document.createElement('style');
+      style.textContent = `
+        .ytp-pause-overlay,
+        .ytp-scroll-min,
+        .ytp-show-cards-title,
+        .ytp-ce-element,
+        .ytp-endscreen-content {
+          display: none !important;
+        }
+      `;
+      iframe.contentDocument?.head?.appendChild(style);
+    }
+  };
+
+  const handlePlayerStateChange = (event) => {
+    // Player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
+    if (event.data === 0) {
+      // Video ended - play next video from the channel
+      const videos = currentChannel ? channelVideos[currentChannel.ticker] || [] : [];
+      const currentIndex = videos.findIndex(v => v.videoId === currentVideo?.videoId);
+      if (currentIndex !== -1 && currentIndex < videos.length - 1) {
+        // Play next video
+        setCurrentVideo(videos[currentIndex + 1]);
+      }
+    }
+  };
+
   const getTrustTierColor = (tier) => {
     const colors = {
       'Official Company': 'bg-blue-600',
