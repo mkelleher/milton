@@ -140,3 +140,25 @@ html {
 :-moz-full-screen {
   background-color: black;
 }
+
+/* Hide YouTube suggested videos and overlays */
+.ytp-pause-overlay,
+.ytp-scroll-min,
+.ytp-show-cards-title,
+.ytp-ce-element,
+.ytp-cards-teaser,
+.ytp-endscreen-content {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Hide YouTube watermark */
+.ytp-watermark {
+  display: none !important;
+}
+
+/* Hide info cards */
+.ytp-cards-button {
+  display: none !important;
+}
