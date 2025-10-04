@@ -95,22 +95,46 @@ function App() {
   };
 
   const handlePlayerReady = (event) => {
-    // Hide end screen and suggested videos
-    const player = event.target;
-    const iframe = player.getIframe();
-    if (iframe) {
-      // Add CSS to hide overlays
-      const style = document.createElement('style');
-      style.textContent = `
-        .ytp-pause-overlay,
-        .ytp-scroll-min,
-        .ytp-show-cards-title,
-        .ytp-ce-element,
-        .ytp-endscreen-content {
-          display: none !important;
+    // Hide end screen and suggested videos with aggressive CSS injection
+    try {
+      const player = event.target;
+      const iframe = player.getIframe();
+      
+      if (iframe) {
+        // Try to inject CSS into iframe (may be blocked by CORS)
+        try {
+          const style = document.createElement('style');
+          style.textContent = `
+            .ytp-pause-overlay,
+            .ytp-scroll-min,
+            .ytp-show-cards-title,
+            .ytp-ce-element,
+            .ytp-endscreen-content,
+            .ytp-endscreen-previous,
+            .ytp-endscreen-next,
+            .ytp-ce-covering-overlay,
+            .ytp-suggestion-set,
+            .ytp-videowall-still,
+            .html5-endscreen,
+            .ytp-upnext {
+              display: none !important;
+              opacity: 0 !important;
+              visibility: hidden !important;
+            }
+          `;
+          iframe.contentDocument?.head?.appendChild(style);
+        } catch (e) {
+          console.log('Could not inject CSS into iframe (CORS)');
         }
-      `;
-      iframe.contentDocument?.head?.appendChild(style);
+        
+        // Add external CSS via parent element
+        iframe.style.cssText = 'pointer-events: auto;';
+      }
+      
+      // Use YouTube API to prevent autoplay of suggested videos
+      player.setLoop(false);
+    } catch (error) {
+      console.error('Error in handlePlayerReady:', error);
     }
   };
 
