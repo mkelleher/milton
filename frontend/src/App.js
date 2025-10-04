@@ -97,46 +97,42 @@ function App() {
   };
 
   const handlePlayerReady = (event) => {
-    // Hide end screen and suggested videos with aggressive CSS injection
-    try {
-      const player = event.target;
-      const iframe = player.getIframe();
-      
-      if (iframe) {
-        // Try to inject CSS into iframe (may be blocked by CORS)
-        try {
-          const style = document.createElement('style');
-          style.textContent = `
-            .ytp-pause-overlay,
-            .ytp-scroll-min,
-            .ytp-show-cards-title,
-            .ytp-ce-element,
-            .ytp-endscreen-content,
-            .ytp-endscreen-previous,
-            .ytp-endscreen-next,
-            .ytp-ce-covering-overlay,
-            .ytp-suggestion-set,
-            .ytp-videowall-still,
-            .html5-endscreen,
-            .ytp-upnext {
-              display: none !important;
-              opacity: 0 !important;
-              visibility: hidden !important;
+    const player = event.target;
+    ytPlayerRef.current = player;
+    
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    // Monitor video progress and switch before end screen appears
+    intervalRef.current = setInterval(() => {
+      try {
+        if (ytPlayerRef.current && ytPlayerRef.current.getDuration) {
+          const duration = ytPlayerRef.current.getDuration();
+          const currentTime = ytPlayerRef.current.getCurrentTime();
+          const timeRemaining = duration - currentTime;
+          
+          // Switch to next video 3 seconds before end to avoid overlay
+          if (timeRemaining > 0 && timeRemaining < 3) {
+            playNextVideo();
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
             }
-          `;
-          iframe.contentDocument?.head?.appendChild(style);
-        } catch (e) {
-          console.log('Could not inject CSS into iframe (CORS)');
+          }
         }
-        
-        // Add external CSS via parent element
-        iframe.style.cssText = 'pointer-events: auto;';
+      } catch (error) {
+        // Ignore errors
       }
-      
-      // Use YouTube API to prevent autoplay of suggested videos
-      player.setLoop(false);
-    } catch (error) {
-      console.error('Error in handlePlayerReady:', error);
+    }, 500); // Check every 500ms
+  };
+  
+  const playNextVideo = () => {
+    const videos = currentChannel ? channelVideos[currentChannel.ticker] || [] : [];
+    const currentIndex = videos.findIndex(v => v.videoId === currentVideo?.videoId);
+    if (currentIndex !== -1 && videos.length > 0) {
+      const nextIndex = (currentIndex + 1) % videos.length;
+      setCurrentVideo(videos[nextIndex]);
     }
   };
 
