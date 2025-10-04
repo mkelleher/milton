@@ -234,6 +234,8 @@ function App() {
               opts={opts}
               className="w-full h-full"
               iframeClassName="w-full h-full"
+              onReady={handlePlayerReady}
+              onStateChange={handlePlayerStateChange}
             />
             
             {/* Video Info Overlay */}
