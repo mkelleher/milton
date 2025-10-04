@@ -333,7 +333,7 @@ function App() {
                       <div
                         key={video.id}
                         onClick={() => handleVideoClick(video, channel)}
-                        className={`flex-shrink-0 w-64 rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-105 ${
+                        className={`flex-shrink-0 w-48 rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-105 ${
                           currentVideo?.videoId === video.videoId
                             ? 'ring-4 ring-yellow-400'
                             : 'border-2 border-gray-700 hover:border-gray-600'
@@ -341,14 +341,14 @@ function App() {
                         data-testid={`video-card-${video.videoId}`}
                       >
                         {/* Video Thumbnail */}
-                        <div className="relative h-36">
+                        <div className="relative h-28">
                           <img
                             src={video.thumbnail}
                             alt={video.title}
                             className="w-full h-full object-cover"
                           />
                           {/* Trust Tier Badge */}
-                          <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-semibold text-white ${
+                          <div className={`absolute top-1 right-1 px-2 py-0.5 rounded text-xs font-semibold text-white ${
                             getTrustTierColor(video.trustTier)
                           }`}>
                             {video.trustTier.split(' ')[0]}
@@ -356,8 +356,8 @@ function App() {
                         </div>
                         
                         {/* Video Info */}
-                        <div className="bg-gray-900 p-3">
-                          <h4 className="text-white text-sm font-semibold line-clamp-2 mb-1">
+                        <div className="bg-gray-900 p-2">
+                          <h4 className="text-white text-xs font-semibold line-clamp-2 mb-1">
                             {video.title}
                           </h4>
                           <p className="text-gray-400 text-xs line-clamp-1">
