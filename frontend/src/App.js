@@ -140,13 +140,64 @@ function App() {
 
   const handlePlayerStateChange = (event) => {
     // Player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
+    const player = event.target;
+    
+    // Aggressively hide overlays on any state change
+    try {
+      const iframe = player.getIframe();
+      if (iframe) {
+        // Wait a bit for YouTube to inject overlays, then remove them
+        setTimeout(() => {
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDoc) {
+              // Remove overlay elements
+              const overlaySelectors = [
+                '.ytp-pause-overlay',
+                '.ytp-scroll-min',
+                '.ytp-ce-element',
+                '.ytp-endscreen-content',
+                '.ytp-suggestion-set',
+                '.html5-endscreen',
+                '.ytp-upnext'
+              ];
+              
+              overlaySelectors.forEach(selector => {
+                const elements = iframeDoc.querySelectorAll(selector);
+                elements.forEach(el => {
+                  if (el) {
+                    el.style.display = 'none';
+                    el.style.visibility = 'hidden';
+                    el.style.opacity = '0';
+                    el.remove();
+                  }
+                });
+              });
+            }
+          } catch (e) {
+            // CORS will block this, but we try anyway
+            console.log('Could not access iframe content');
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error blocking overlays:', error);
+    }
+    
     if (event.data === 0) {
       // Video ended - play next video from the channel
       const videos = currentChannel ? channelVideos[currentChannel.ticker] || [] : [];
       const currentIndex = videos.findIndex(v => v.videoId === currentVideo?.videoId);
       if (currentIndex !== -1 && currentIndex < videos.length - 1) {
-        // Play next video
-        setCurrentVideo(videos[currentIndex + 1]);
+        // Play next video immediately to prevent end screen
+        setTimeout(() => {
+          setCurrentVideo(videos[currentIndex + 1]);
+        }, 100);
+      } else {
+        // Loop back to first video
+        setTimeout(() => {
+          setCurrentVideo(videos[0]);
+        }, 100);
       }
     }
   };
