@@ -141,16 +141,35 @@ html {
   background-color: black;
 }
 
-/* Hide YouTube suggested videos and overlays */
+/* Hide YouTube suggested videos and overlays - AGGRESSIVE */
 .ytp-pause-overlay,
 .ytp-scroll-min,
 .ytp-show-cards-title,
 .ytp-ce-element,
 .ytp-cards-teaser,
-.ytp-endscreen-content {
+.ytp-endscreen-content,
+.ytp-endscreen-previous,
+.ytp-endscreen-next,
+.ytp-ce-covering-overlay,
+.ytp-ce-element-show,
+.ytp-ce-covering-image,
+.ytp-ce-expanding-image,
+.ytp-ce-video,
+.ytp-ce-playlist,
+.ytp-ce-channel,
+.ytp-suggestion-set,
+.ytp-videowall-still,
+.ytp-endscreen-paginate,
+.html5-endscreen,
+.html5-endscreen-content,
+.ytp-upnext,
+.ytp-scroll-min-button {
   display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Hide YouTube watermark */
@@ -159,6 +178,20 @@ html {
 }
 
 /* Hide info cards */
-.ytp-cards-button {
+.ytp-cards-button,
+.ytp-cards-button-icon {
   display: none !important;
+}
+
+/* Additional overlay blocking */
+.ytp-ce-covering-overlay,
+.ytp-ce-shadow,
+.ytp-ce-top-left-quad,
+.ytp-ce-top-right-quad,
+.ytp-ce-bottom-left-quad,
+.ytp-ce-bottom-right-quad,
+.ytp-ce-size-1280 {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
