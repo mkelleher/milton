@@ -252,7 +252,7 @@ function App() {
       {/* Video Player */}
       <div 
         ref={playerRef}
-        className="relative bg-black" 
+        className="relative bg-black youtube-player-wrapper" 
         style={{ height: '60vh' }}
         data-testid="video-player-container"
       >
@@ -266,6 +266,9 @@ function App() {
               onReady={handlePlayerReady}
               onStateChange={handlePlayerStateChange}
             />
+            
+            {/* Overlay to block YouTube end screen clicks */}
+            <div className="youtube-overlay-blocker"></div>
             
             {/* Video Info Overlay */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
