@@ -207,21 +207,22 @@ html {
   z-index: 1;
 }
 
-/* Transparent overlay to block end screen interactions */
-.youtube-overlay-blocker {
+/* Physical blocker for YouTube end screens - covers bottom 40% where overlays appear */
+.youtube-end-screen-blocker {
   position: absolute;
-  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 10;
-  pointer-events: none;
-  background: transparent;
+  height: 40%;
+  z-index: 999;
+  pointer-events: all;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.1) 0%, transparent 100%);
+  cursor: default;
 }
 
-/* Allow controls to be clickable */
-.youtube-player-wrapper:hover .youtube-overlay-blocker {
-  pointer-events: none;
+/* Make blocker invisible but still block clicks */
+.youtube-end-screen-blocker:hover {
+  background: transparent;
 }
 
 /* Force hide all YouTube end screens and overlays with maximum specificity */
