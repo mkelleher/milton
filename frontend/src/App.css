@@ -195,3 +195,41 @@ html {
   opacity: 0 !important;
   visibility: hidden !important;
 }
+
+/* YouTube player wrapper to control overlays */
+.youtube-player-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.youtube-player-wrapper iframe {
+  position: relative;
+  z-index: 1;
+}
+
+/* Transparent overlay to block end screen interactions */
+.youtube-overlay-blocker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  pointer-events: none;
+  background: transparent;
+}
+
+/* Allow controls to be clickable */
+.youtube-player-wrapper:hover .youtube-overlay-blocker {
+  pointer-events: none;
+}
+
+/* Force hide all YouTube end screens and overlays with maximum specificity */
+iframe[src*="youtube.com"] .ytp-pause-overlay,
+iframe[src*="youtube.com"] .ytp-ce-element,
+iframe[src*="youtube.com"] .ytp-endscreen-content,
+iframe[src*="youtube.com"] .html5-endscreen {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
