@@ -20,6 +20,13 @@ function App() {
 
   useEffect(() => {
     initializeApp();
+    
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   const initializeApp = async () => {
