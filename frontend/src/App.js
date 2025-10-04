@@ -187,9 +187,12 @@ function App() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-black z-50">
         <div className="flex items-center gap-8">
-          <h1 className="text-3xl font-bold text-white" data-testid="app-title">
-            milton<span className="text-yellow-400">TV</span>
-          </h1>
+          <div>
+            <h1 className="text-3xl font-bold text-white" data-testid="app-title">
+              milton<span className="text-yellow-400">TV</span>
+            </h1>
+            <p className="text-xs text-gray-400 mt-0.5 tracking-wide">watch your money</p>
+          </div>
           {currentChannel && (
             <div className="flex items-center gap-3">
               <span className="text-gray-400">|</span>
