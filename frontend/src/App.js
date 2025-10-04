@@ -15,6 +15,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const playerRef = useRef(null);
+  const ytPlayerRef = useRef(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     initializeApp();
