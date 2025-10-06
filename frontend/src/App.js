@@ -230,7 +230,11 @@ function App() {
 
   const handlePlayerStateChange = (event) => {
     // Player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
-    if (event.data === 0) {
+    if (event.data === 1) {
+      setIsPlaying(true);
+    } else if (event.data === 2) {
+      setIsPlaying(false);
+    } else if (event.data === 0) {
       // Video ended - play next immediately (backup to interval check)
       playNextVideo();
     }
