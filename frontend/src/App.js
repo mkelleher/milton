@@ -281,13 +281,13 @@ function App() {
     width: '100%',
     playerVars: {
       autoplay: 1,
-      controls: 1,
+      controls: 0, // Hide default controls - we'll use custom ones
       modestbranding: 1,
       rel: 0, // Don't show related videos from other channels
-      fs: 1, // Allow fullscreen
+      fs: 0, // Disable default fullscreen (we have custom button)
       iv_load_policy: 3, // Hide video annotations
       showinfo: 0, // Don't show video title and uploader before start
-      disablekb: 0, // Enable keyboard controls
+      disablekb: 1, // Disable keyboard controls (we'll handle them)
       enablejsapi: 1, // Enable JavaScript API
       origin: window.location.origin, // Set origin for security
       playsinline: 1, // Play inline on mobile
