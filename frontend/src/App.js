@@ -368,7 +368,7 @@ function App() {
                         onClick={() => handleVideoClick(video, channel)}
                         className={`flex-shrink-0 w-48 rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-105 ${
                           currentVideo?.videoId === video.videoId
-                            ? 'ring-4 ring-yellow-400'
+                            ? 'ring-4 ring-green-500 shadow-lg shadow-green-500/50'
                             : 'border-2 border-gray-700 hover:border-gray-600'
                         }`}
                         data-testid={`video-card-${video.videoId}`}
