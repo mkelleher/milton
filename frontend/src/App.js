@@ -114,9 +114,19 @@ function App() {
     const player = event.target;
     ytPlayerRef.current = player;
     
-    // Clear any existing interval
+    // Set initial volume
+    player.setVolume(volume);
+    
+    // Get duration
+    const dur = player.getDuration();
+    setDuration(dur);
+    
+    // Clear any existing intervals
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
     }
     
     // Monitor video progress and switch before end screen appears
@@ -138,7 +148,21 @@ function App() {
       } catch (error) {
         // Ignore errors
       }
-    }, 500); // Check every 500ms
+    }, 500);
+    
+    // Update progress bar
+    progressIntervalRef.current = setInterval(() => {
+      try {
+        if (ytPlayerRef.current) {
+          const currentTime = ytPlayerRef.current.getCurrentTime();
+          const duration = ytPlayerRef.current.getDuration();
+          setProgress((currentTime / duration) * 100);
+          setDuration(duration);
+        }
+      } catch (error) {
+        // Ignore errors
+      }
+    }, 100);
   };
   
   const playNextVideo = () => {
