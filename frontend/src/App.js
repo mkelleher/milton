@@ -14,9 +14,16 @@ function App() {
   const [currentChannel, setCurrentChannel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showControls, setShowControls] = useState(false);
+  const [volume, setVolume] = useState(100);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
   const playerRef = useRef(null);
   const ytPlayerRef = useRef(null);
   const intervalRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+  const controlsTimeoutRef = useRef(null);
 
   useEffect(() => {
     initializeApp();
