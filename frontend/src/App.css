@@ -234,3 +234,51 @@ iframe[src*="youtube.com"] .html5-endscreen {
   visibility: hidden !important;
   opacity: 0 !important;
 }
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  background: #4a4a4a;
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type="range"]::-moz-range-track {
+  background: #4a4a4a;
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  cursor: pointer;
+  margin-top: -4px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  cursor: pointer;
+  border: none;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  background: #16a34a;
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  background: #16a34a;
+}
