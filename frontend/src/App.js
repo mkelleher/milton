@@ -28,10 +28,16 @@ function App() {
   useEffect(() => {
     initializeApp();
     
-    // Cleanup interval on unmount
+    // Cleanup intervals on unmount
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
       }
     };
   }, []);
