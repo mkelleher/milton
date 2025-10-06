@@ -259,6 +259,7 @@ function App() {
         {currentVideo ? (
           <>
             <YouTube
+              key={currentVideo.videoId}
               videoId={currentVideo.videoId}
               opts={opts}
               className="w-full h-full"
