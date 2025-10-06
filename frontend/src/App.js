@@ -150,6 +150,60 @@ function App() {
     }
   };
 
+  const handlePlayPause = () => {
+    if (ytPlayerRef.current) {
+      if (isPlaying) {
+        ytPlayerRef.current.pauseVideo();
+        setIsPlaying(false);
+      } else {
+        ytPlayerRef.current.playVideo();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const handleRewind = () => {
+    if (ytPlayerRef.current) {
+      const currentTime = ytPlayerRef.current.getCurrentTime();
+      ytPlayerRef.current.seekTo(Math.max(0, currentTime - 10), true);
+    }
+  };
+
+  const handleForward = () => {
+    if (ytPlayerRef.current) {
+      const currentTime = ytPlayerRef.current.getCurrentTime();
+      const duration = ytPlayerRef.current.getDuration();
+      ytPlayerRef.current.seekTo(Math.min(duration, currentTime + 10), true);
+    }
+  };
+
+  const handleVolumeChange = (newVolume) => {
+    if (ytPlayerRef.current) {
+      ytPlayerRef.current.setVolume(newVolume);
+      setVolume(newVolume);
+    }
+  };
+
+  const handleProgressClick = (e) => {
+    if (ytPlayerRef.current && duration > 0) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percentage = clickX / rect.width;
+      const newTime = percentage * duration;
+      ytPlayerRef.current.seekTo(newTime, true);
+    }
+  };
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+  };
+
   const handlePlayerStateChange = (event) => {
     // Player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
     if (event.data === 0) {
