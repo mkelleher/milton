@@ -344,6 +344,8 @@ function App() {
         className="relative bg-black youtube-player-wrapper" 
         style={{ height: '60vh' }}
         data-testid="video-player-container"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setShowControls(false)}
       >
         {currentVideo ? (
           <>
@@ -360,19 +362,95 @@ function App() {
             {/* Physical blocker overlay for bottom portion where overlays appear */}
             <div className="youtube-end-screen-blocker"></div>
             
-            {/* Video Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
+            {/* Custom Spotify-Style Controls */}
+            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent transition-opacity duration-300 ${
+              showControls ? 'opacity-100' : 'opacity-0'
+            }`}>
+              {/* Progress Bar */}
+              <div className="px-6 pt-4">
+                <div 
+                  className="h-1 bg-gray-600 rounded-full cursor-pointer group"
+                  onClick={handleProgressClick}
+                >
+                  <div 
+                    className="h-full bg-green-500 rounded-full relative transition-all"
+                    style={{ width: `${progress}%` }}
+                  >
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Controls */}
+              <div className="flex items-center justify-between px-6 py-4">
+                {/* Left: Video Info */}
+                <div className="flex-1 min-w-0 mr-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold text-white ${
                       getTrustTierColor(currentVideo.trustTier)
                     }`}>
-                      {currentVideo.trustTier}
+                      {currentVideo.trustTier.split(' ')[0]}
                     </span>
                   </div>
-                  <h2 className="text-white text-2xl font-bold mb-2">{currentVideo.title}</h2>
-                  <p className="text-gray-300 text-sm">{currentVideo.source} • {currentVideo.channelTitle}</p>
+                  <h3 className="text-white text-sm font-semibold truncate">{currentVideo.title}</h3>
+                  <p className="text-gray-400 text-xs truncate">{currentVideo.channelTitle}</p>
+                </div>
+
+                {/* Center: Playback Controls */}
+                <div className="flex items-center gap-4">
+                  {/* Rewind 10s */}
+                  <button
+                    onClick={handleRewind}
+                    className="text-white hover:text-green-400 transition-colors"
+                    title="Rewind 10 seconds"
+                  >
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.1 11h-.85v-3.26l-1.01.31v-.69l1.77-.63h.09V16zm4.28-1.76c0 .32-.03.6-.1.82s-.17.42-.29.57-.28.26-.45.33-.37.1-.59.10-.41-.03-.59-.1-.33-.18-.46-.33-.23-.34-.3-.57-.11-.5-.11-.82v-.74c0-.32.03-.6.1-.82s.17-.42.29-.57.28-.26.45-.33.37-.1.59-.1.41.03.59.1.33.18.46.33.23.34.3.57.11.5.11.82v.74zm-.85-.86c0-.19-.01-.35-.04-.48s-.07-.23-.12-.31-.11-.14-.19-.17-.16-.05-.25-.05-.18.02-.25.05-.14.09-.19.17-.09.18-.12.31-.04.29-.04.48v.97c0 .19.01.35.04.48s.07.24.12.32.11.14.19.17.16.05.25.05.18-.02.25-.05.14-.09.19-.17.09-.19.11-.32.04-.29.04-.48v-.97z"/>
+                    </svg>
+                  </button>
+
+                  {/* Play/Pause */}
+                  <button
+                    onClick={handlePlayPause}
+                    className="w-12 h-12 flex items-center justify-center bg-white rounded-full text-black hover:scale-110 transition-transform"
+                    title={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? (
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                      </svg>
+                    ) : (
+                      <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Forward 10s */}
+                  <button
+                    onClick={handleForward}
+                    className="text-white hover:text-green-400 transition-colors"
+                    title="Forward 10 seconds"
+                  >
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2zm-7.46 2.22c0-.19.01-.35.04-.48s.07-.23.12-.31.11-.14.19-.17.16-.05.25-.05.18.02.25.05.14.09.19.17.09.18.11.31.04.29.04.48v.97c0 .19-.01.35-.04.48s-.07.24-.12.32-.11.14-.19.17-.16.05-.25.05-.18-.02-.25-.05-.14-.09-.19-.17-.09-.19-.12-.32-.04-.29-.04-.48v-.97zm3.15.97c0 .32-.03.6-.1.82s-.17.42-.29.57-.28.26-.45.33-.37.1-.59.1-.41-.03-.59-.1-.33-.18-.46-.33-.23-.34-.3-.57-.11-.5-.11-.82v-.74c0-.32.03-.6.1-.82s.17-.42.29-.57.28-.26.45-.33.37-.1.59-.1.41.03.59.1.33.18.46.33.23.34.3.57.11.5.11.82v.74z"/>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Right: Volume */}
+                <div className="flex items-center gap-3 flex-1 justify-end">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                  </svg>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
+                    className="w-24 accent-green-500"
+                  />
                 </div>
               </div>
             </div>
