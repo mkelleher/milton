@@ -212,10 +212,15 @@ function App() {
   };
 
   const handleForward = () => {
+    console.log('Forward clicked');
     if (ytPlayerRef.current) {
-      const currentTime = ytPlayerRef.current.getCurrentTime();
-      const duration = ytPlayerRef.current.getDuration();
-      ytPlayerRef.current.seekTo(Math.min(duration, currentTime + 10), true);
+      try {
+        const currentTime = ytPlayerRef.current.getCurrentTime();
+        const duration = ytPlayerRef.current.getDuration();
+        ytPlayerRef.current.seekTo(Math.min(duration, currentTime + 10), true);
+      } catch (error) {
+        console.error('Error forwarding:', error);
+      }
     }
   };
 
