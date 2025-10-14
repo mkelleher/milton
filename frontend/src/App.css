@@ -214,14 +214,8 @@ html {
   right: 0;
   bottom: 0;
   height: 40%;
-  z-index: 999;
-  pointer-events: all;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.1) 0%, transparent 100%);
-  cursor: default;
-}
-
-/* Make blocker invisible but still block clicks */
-.youtube-end-screen-blocker:hover {
+  z-index: 10;
+  pointer-events: none;
   background: transparent;
 }
 
