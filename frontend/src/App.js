@@ -368,10 +368,8 @@ function App() {
             {/* Physical blocker overlay for bottom portion where overlays appear */}
             <div className="youtube-end-screen-blocker"></div>
             
-            {/* Custom Spotify-Style Controls */}
-            <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent transition-opacity duration-300 ${
-              showControls ? 'opacity-100' : 'opacity-0'
-            }`}>
+            {/* Custom Spotify-Style Controls - Always Visible */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent z-50">
               {/* Progress Bar */}
               <div className="px-6 pt-4">
                 <div 
