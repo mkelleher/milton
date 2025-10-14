@@ -15,13 +15,9 @@ module.exports = {
                         sm: 'calc(var(--radius) - 4px)'
                 },
                 colors: {
-                        // Keep default Tailwind colors
-                        inherit: 'inherit',
-                        current: 'currentColor',
-                        transparent: 'transparent',
-                        black: '#000',
-                        white: '#fff',
-                        // Add custom theme colors below
+                        // Keep all default Tailwind colors
+                        ...colors,
+                        // Add custom theme colors
                         background: 'hsl(var(--background))',
                         foreground: 'hsl(var(--foreground))',
                         card: {
