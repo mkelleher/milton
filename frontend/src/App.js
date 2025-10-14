@@ -560,8 +560,8 @@ function App() {
                         </div>
                         
                         {/* Video Info */}
-                        <div className="bg-gray-900 p-2">
-                          <h4 className="text-white text-xs font-semibold line-clamp-2 mb-1">
+                        <div className="bg-gray-900 p-1.5">
+                          <h4 className="text-white text-xs font-semibold line-clamp-2 mb-0.5">
                             {video.title}
                           </h4>
                           <p className="text-gray-400 text-xs line-clamp-1">
