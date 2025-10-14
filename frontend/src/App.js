@@ -369,7 +369,7 @@ function App() {
             <div className="youtube-end-screen-blocker"></div>
             
             {/* Custom Spotify-Style Controls - Always Visible */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent z-50">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent" style={{ zIndex: 1000 }}>
               {/* Progress Bar */}
               <div className="px-6 pt-4">
                 <div 
