@@ -181,14 +181,21 @@ function App() {
   };
 
   const handlePlayPause = () => {
+    console.log('Play/Pause clicked, player:', ytPlayerRef.current, 'isPlaying:', isPlaying);
     if (ytPlayerRef.current) {
-      if (isPlaying) {
-        ytPlayerRef.current.pauseVideo();
-        setIsPlaying(false);
-      } else {
-        ytPlayerRef.current.playVideo();
-        setIsPlaying(true);
+      try {
+        if (isPlaying) {
+          ytPlayerRef.current.pauseVideo();
+          setIsPlaying(false);
+        } else {
+          ytPlayerRef.current.playVideo();
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        console.error('Error playing/pausing:', error);
       }
+    } else {
+      console.error('YouTube player not initialized');
     }
   };
 
