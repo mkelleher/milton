@@ -537,7 +537,7 @@ function App() {
                       <div
                         key={video.id}
                         onClick={() => handleVideoClick(video, channel)}
-                        className={`flex-shrink-0 w-48 rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-105 ${
+                        className={`flex-shrink-0 w-36 rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-105 ${
                           currentVideo?.videoId === video.videoId
                             ? 'ring-4 ring-green-500 shadow-lg shadow-green-500/50'
                             : 'border-2 border-gray-700 hover:border-gray-600'
@@ -545,7 +545,7 @@ function App() {
                         data-testid={`video-card-${video.videoId}`}
                       >
                         {/* Video Thumbnail */}
-                        <div className="relative h-28">
+                        <div className="relative h-20">
                           <img
                             src={video.thumbnail}
                             alt={video.title}
