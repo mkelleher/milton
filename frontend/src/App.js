@@ -15,7 +15,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [showControls, setShowControls] = useState(false);
+  const [showControls, setShowControls] = useState(true);
   const [volume, setVolume] = useState(100);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
