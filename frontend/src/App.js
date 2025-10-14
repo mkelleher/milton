@@ -200,9 +200,14 @@ function App() {
   };
 
   const handleRewind = () => {
+    console.log('Rewind clicked');
     if (ytPlayerRef.current) {
-      const currentTime = ytPlayerRef.current.getCurrentTime();
-      ytPlayerRef.current.seekTo(Math.max(0, currentTime - 10), true);
+      try {
+        const currentTime = ytPlayerRef.current.getCurrentTime();
+        ytPlayerRef.current.seekTo(Math.max(0, currentTime - 10), true);
+      } catch (error) {
+        console.error('Error rewinding:', error);
+      }
     }
   };
 
